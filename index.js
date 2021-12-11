@@ -25,9 +25,6 @@ app.use(
     ].join(" ");
   })
 );
-let data = [];
-
-const d = new Date().toString();
 
 app.get("/api/persons", (req, res, next) => {
   PhoneNumber.find({})
@@ -36,13 +33,36 @@ app.get("/api/persons", (req, res, next) => {
     })
     .catch((error) => next(error));
 });
+app.get("/info", (req, res) => {
+  PhoneNumber.find({})
+    .then((result) => {
+      console.log(result.length);
+      const exercise32Html = `
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>exercise 3-2</title>
+  </head>
+  <body>
+  <div> phonebook has info for ${result.length} people </div>
+  <div> ${d} </div>
+  </body>
+</html>`;
+      res.send(exercise32Html);
+    })
+    .catch((error) => next(error));
+});
+const d = new Date().toString();
 
 app.get("/api/persons/:id", (req, res) => {
-  if (data[req.params.id]) {
-    res.send(data[req.params.id]);
-  } else {
-    res.status(404).send("Not Found");
-  }
+  PhoneNumber.findById(req.params.id)
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => next(error));
 });
 
 app.delete("/api/persons/:id", (req, res, next) => {
