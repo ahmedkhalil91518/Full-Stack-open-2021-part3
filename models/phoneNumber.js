@@ -1,28 +1,29 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
+var uniqueValidator = require("mongoose-unique-validator");
+const url = process.env.MONGODB_URI;
 
-const url = process.env.MONGODB_URI
+console.log("connecting to", url);
 
-console.log('connecting to', url)
-
-mongoose.connect(url)
-  .then(result => {
-    console.log('connected to MongoDB')
+mongoose
+  .connect(url)
+  .then((result) => {
+    console.log("connected to MongoDB");
   })
   .catch((error) => {
-    console.log('error connecting to MongoDB:', error.message)
-  })
-
-  const phoneNumberSchema = new mongoose.Schema({
-    name: String,
-    number: String,
+    console.log("error connecting to MongoDB:", error.message);
   });
-  
-  phoneNumberSchema.set('toJSON', {
-    transform: (document, returnedObject) => {
-      returnedObject.id = returnedObject._id.toString()
-      delete returnedObject._id
-      delete returnedObject.__v
-    }
-  })
-  
-  module.exports = mongoose.model("Phone Number", phoneNumberSchema)
+
+const phoneNumberSchema = new mongoose.Schema({
+  name: { type: String, required: true, unique: true },
+  number: String,
+});
+phoneNumberSchema.plugin(uniqueValidator);
+phoneNumberSchema.set("toJSON", {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  },
+});
+
+module.exports = mongoose.model("Phone Number", phoneNumberSchema);

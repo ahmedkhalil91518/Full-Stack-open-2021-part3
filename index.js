@@ -76,12 +76,6 @@ app.delete("/api/persons/:id", (req, res, next) => {
 });
 
 app.post("/api/persons", (req, res, next) => {
-  if (req.body.name === "") {
-    res.status(400).send({ error: "name field is mandatory" });
-  }
-  if (req.body.number === "") {
-    res.status(400).send({ error: "number field is mandatory" });
-  }
   const phoneNumber = new PhoneNumber({
     name: req.body.name,
     number: req.body.number,
@@ -92,7 +86,12 @@ app.post("/api/persons", (req, res, next) => {
     .then((result) => {
       res.send(result);
     })
-    .catch((error) => next(error));
+    .catch((error) => {
+      if (error.name === "ValidationError"){
+        res.status(409).send({errorMessage : "this name is already in the phonebook"})
+      }
+      return next(error);
+    });
 });
 
 app.put("/api/persons/:id", (req, res, next) => {
