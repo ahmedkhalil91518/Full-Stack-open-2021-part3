@@ -3,7 +3,6 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const PhoneNumber = require("./models/phoneNumber")
-
 const app = express();
 const port = process.env.PORT;
 
@@ -52,7 +51,7 @@ function getRandomInt(max) {
 app.get("/api/persons", (req, res) => {
   PhoneNumber.find({}).then((result) => {
     res.send(result)
-    mongoose.connection.close();
+    // mongoose.connection.close();
   });
 });
 
@@ -82,24 +81,22 @@ app.delete("/api/persons/:id", (req, res) => {
 });
 
 app.post("/api/persons", (req, res) => {
-  for (let i = 0; i < data.length; i++) {
-    if (data[i].name === req.body.name) {
-      res.status(403).send({ error: "name must be unique" });
-    }
-  }
-
   if (req.body.name === "") {
     res.status(400).send({ error: "name field is mandatory" });
   }
   if (req.body.number === "") {
     res.status(400).send({ error: "number field is mandatory" });
   }
-  const newData = [
-    { id: getRandomInt(1000000), name: req.body.name, number: req.body.number },
-    ...data,
-  ];
-  data = newData;
-  res.send(newData);
+  const phoneNumber = new PhoneNumber({
+    name: req.body.name,
+    number: req.body.number,
+  });
+
+  phoneNumber.save().then((result) => {
+    res.send(result)
+    console.log(result);
+    // mongoose.connection.close();
+  });
 });
 
 app.listen(port, () => {
