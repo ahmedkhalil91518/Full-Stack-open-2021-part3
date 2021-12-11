@@ -9,6 +9,7 @@ const port = process.env.PORT;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('the-phonebook/build'))
 
 app.use(
   morgan(function (tokens, req, res) {
