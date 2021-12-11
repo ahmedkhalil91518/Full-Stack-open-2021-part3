@@ -4,7 +4,7 @@ import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import phoneNumbers from "./services/phoneNumbers";
 import Message from "./components/message";
-import "./App.css"
+import "./App.css";
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
@@ -12,6 +12,7 @@ const App = () => {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [message, setMessage] = useState(null);
+  const [errorOrNot, setErrorOrNot] = useState(false);
   useEffect(() => {
     phoneNumbers.getPersons().then((res) => {
       setPersons(res);
@@ -33,14 +34,26 @@ const App = () => {
       );
       if (confirmReplace) {
         console.log(id);
-        phoneNumbers.updatePerson(id, { name: newName, number: newNumber });
+        phoneNumbers
+          .updatePerson(id, { name: newName, number: newNumber })
+          .then((x) => {
+            setMessage(`${newName} is updated to phone book`);
+            setTimeout(() => {
+              setMessage(null);
+            }, 3000);
+          })
+          .catch((error) => {
+            console.log(error.response.data);
+            setMessage(error.response.data);
+            setErrorOrNot(true);
+            setTimeout(() => {
+              setMessage(null);
+              setErrorOrNot(false);
+            }, 3000);
+          });
         phoneNumbers.getPersons().then((res) => {
           setPersons(res);
         });
-        setMessage(`${newName} is updated to phone book`)
-        setTimeout(() => {
-          setMessage(null)
-        }, 3000)
       }
     } else {
       phoneNumbers
@@ -48,13 +61,22 @@ const App = () => {
         .then((res) => {
           phoneNumbers.getPersons().then((res) => {
             setPersons(res);
+            setNewName("");
+            setNewNumber("");
+            setMessage(`${newName} is added to phone book`);
+            setTimeout(() => {
+              setMessage(null);
+            }, 3000);
           });
-          setNewName("");
-          setNewNumber("");
-          setMessage(`${newName} is added to phone book`)
+        })
+        .catch((error) => {
+          console.log(error.response.data);
+          setMessage(error.response.data);
+          setErrorOrNot(true);
           setTimeout(() => {
-            setMessage(null)
-          }, 3000)
+            setMessage(null);
+            setErrorOrNot(false);
+          }, 3000);
         });
     }
     setSearch("");
@@ -82,7 +104,7 @@ const App = () => {
     );
 
     if (confirmDelete) {
-      console.log((person.id));
+      console.log(person.id);
       phoneNumbers.removePerson(person.id);
     }
     phoneNumbers.getPersons().then((res) => {
@@ -93,7 +115,7 @@ const App = () => {
     <div>
       <div>
         <h2>Phonebook</h2>
-        <Message message={message}/>
+        <Message message={message} errorOrNot={errorOrNot} />
         <Filter handleSearch={handleSearch} search={search} />
         <h3>Add a new</h3>
         <PersonForm

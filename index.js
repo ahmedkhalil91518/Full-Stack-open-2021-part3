@@ -87,8 +87,15 @@ app.post("/api/persons", (req, res, next) => {
       res.send(result);
     })
     .catch((error) => {
-      if (error.name === "ValidationError"){
-        res.status(409).send({errorMessage : "this name is already in the phonebook"})
+      if (error.message.includes("unique")) {
+        res
+          .status(409)
+          .send({ errorMessage: "this name is already in the phonebook" });
+      }
+      if (
+        error.message.includes("is shorter than the minimum allowed length")
+      ) {
+        res.status(400).send(error.message);
       }
       return next(error);
     });
@@ -99,7 +106,10 @@ app.put("/api/persons/:id", (req, res, next) => {
     name: req.body.name,
     number: req.body.number,
   };
-  PhoneNumber.findByIdAndUpdate(req.params.id, number, { new: true })
+  PhoneNumber.findByIdAndUpdate(req.params.id, number, {
+    runValidators: true,
+    new: true,
+  })
     .then((updatedNumber) => {
       res.json(updatedNumber);
     })

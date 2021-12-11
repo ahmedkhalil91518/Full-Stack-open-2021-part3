@@ -14,8 +14,8 @@ mongoose
   });
 
 const phoneNumberSchema = new mongoose.Schema({
-  name: { type: String, required: true, unique: true },
-  number: String,
+  name: { type: String, required: true, unique: true, minLength: 3 },
+  number: { type: String, required: true, minLength: 8 },
 });
 phoneNumberSchema.plugin(uniqueValidator);
 phoneNumberSchema.set("toJSON", {
