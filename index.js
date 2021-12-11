@@ -94,7 +94,6 @@ app.delete("/api/persons/:id", (req, res) => {
     }
   }
   data = newData;
-  console.log(data);
   res.send(data);
 });
 
