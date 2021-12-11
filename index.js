@@ -29,34 +29,11 @@ let data = [];
 
 const d = new Date().toString();
 
-const exercise32Html = `
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>exercise 3-2</title>
-  </head>
-  <body>
-  <div> phonebook has info for ${data.length} people </div>
-  <div> ${d} </div>
-  </body>
-</html>`;
-
-function getRandomInt(max) {
-  return Math.floor(Math.random() * max);
-}
-
 app.get("/api/persons", (req, res) => {
   PhoneNumber.find({}).then((result) => {
     res.send(result)
     // mongoose.connection.close();
   });
-});
-
-app.get("/info", (req, res) => {
-  res.send(exercise32Html);
 });
 
 app.get("/api/persons/:id", (req, res) => {
@@ -68,17 +45,14 @@ app.get("/api/persons/:id", (req, res) => {
 });
 
 app.delete("/api/persons/:id", (req, res) => {
-  let newData = [];
-  for (let i = 0; i < data.length; i++) {
-    if (data[i].id === +req.params.id) {
-      continue;
-    } else {
-      newData.push(data[i]);
-    }
-  }
-  data = newData;
-  res.send(data);
-});
+  PhoneNumber.findByIdAndRemove(req.params.id)
+      .then(x => {
+        PhoneNumber.find({}).then((result) => {
+          res.send(result)
+        });
+      })
+      .catch(error => console.log(error))
+  })
 
 app.post("/api/persons", (req, res) => {
   if (req.body.name === "") {
