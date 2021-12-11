@@ -75,6 +75,18 @@ app.post("/api/persons", (req, res, next) => {
     .catch((error) => next(error));
 });
 
+app.put("/api/persons/:id", (req, res, next) => {
+  const number = {
+    name: req.body.name,
+    number: req.body.number,
+  };
+  PhoneNumber.findByIdAndUpdate(req.params.id, number, { new: true })
+    .then((updatedNumber) => {
+      res.json(updatedNumber);
+    })
+    .catch((error) => next(error));
+});
+
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
   next(error);
