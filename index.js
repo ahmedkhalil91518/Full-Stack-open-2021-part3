@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
+const PhoneNumber = require("./models/phoneNumber")
 
 const app = express();
 const port = process.env.PORT;
@@ -25,28 +26,7 @@ app.use(
     ].join(" ");
   })
 );
-let data = [
-  {
-    id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
-  },
-  {
-    id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
-  },
-  {
-    id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
-  },
-  {
-    id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
-  },
-];
+let data = [];
 
 const d = new Date().toString();
 
@@ -70,7 +50,10 @@ function getRandomInt(max) {
 }
 
 app.get("/api/persons", (req, res) => {
-  res.send(data);
+  PhoneNumber.find({}).then((result) => {
+    res.send(result)
+    mongoose.connection.close();
+  });
 });
 
 app.get("/info", (req, res) => {
