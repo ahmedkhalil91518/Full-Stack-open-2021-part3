@@ -2,14 +2,14 @@ require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
-const PhoneNumber = require("./models/phoneNumber")
+const PhoneNumber = require("./models/phoneNumber");
 const app = express();
 const port = process.env.PORT;
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('the-phonebook/build'))
+app.use(express.static("the-phonebook/build"));
 
 app.use(
   morgan(function (tokens, req, res) {
@@ -29,11 +29,12 @@ let data = [];
 
 const d = new Date().toString();
 
-app.get("/api/persons", (req, res) => {
-  PhoneNumber.find({}).then((result) => {
-    res.send(result)
-    // mongoose.connection.close();
-  });
+app.get("/api/persons", (req, res, next) => {
+  PhoneNumber.find({})
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => next(error));
 });
 
 app.get("/api/persons/:id", (req, res) => {
@@ -44,17 +45,17 @@ app.get("/api/persons/:id", (req, res) => {
   }
 });
 
-app.delete("/api/persons/:id", (req, res) => {
+app.delete("/api/persons/:id", (req, res, next) => {
   PhoneNumber.findByIdAndRemove(req.params.id)
-      .then(x => {
-        PhoneNumber.find({}).then((result) => {
-          res.send(result)
-        });
-      })
-      .catch(error => console.log(error))
-  })
+    .then((x) => {
+      PhoneNumber.find({}).then((result) => {
+        res.send(result);
+      });
+    })
+    .catch((error) => next(error));
+});
 
-app.post("/api/persons", (req, res) => {
+app.post("/api/persons", (req, res, next) => {
   if (req.body.name === "") {
     res.status(400).send({ error: "name field is mandatory" });
   }
@@ -66,12 +67,19 @@ app.post("/api/persons", (req, res) => {
     number: req.body.number,
   });
 
-  phoneNumber.save().then((result) => {
-    res.send(result)
-    console.log(result);
-    // mongoose.connection.close();
-  });
+  phoneNumber
+    .save()
+    .then((result) => {
+      res.send(result);
+    })
+    .catch((error) => next(error));
 });
+
+const errorHandler = (error, request, response, next) => {
+  console.error(error.message);
+  next(error);
+};
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
